@@ -1,0 +1,50 @@
+#example input file to align samples to a reference (April 2013)
+
+#input fastq files (make sure left and right match up in the order)
+#path to fastq files
+files=/PATH/TO/FASTQ/DIR/
+#left reads
+file1=( sampleA.R1.fastq.gz sampleB.R1.fastq.gz sampleC.R1.fastq.gz )
+#right reads
+file2=( sampleA.R2.fastq.gz sampleB.R2.fastq.gz sampleC.R2.fastq.gz )
+#quality score encoding
+#if your reads are not phred+33/sanger/Illumina 1.8, uncomment this line so bwa uses phred+64 and converts to the standard phred+33 for alignment files
+#q="-I"
+
+#sam read group tags
+id=( sampleA sampleB sampleC )
+sample=( sampleA sampleB sampleC )
+platform=ILLUMINA
+
+#location of reference genome
+ref_path=/PATH/TO/REFERENCE/DIR/
+ref_file=reference.fasta
+
+#location of program executables (assumes BWA and samtools are already in your PATH)
+picard=/PATH/TO/PICARD/DIR/picard-tools-1.53
+gatk=/PATH/TO/GATK/DIR/GenomeAnalysisTK-1.2-4-gd9ea764/GenomeAnalysisTK.jar
+
+#BWA mapping parameters (set for 100 bp reads and sanger quality scores)
+#Maximum edit distance if the value is INT, or the fraction of missing alignments given 2% uniform base error rate if FLOAT. In the latter case, the maximum edit distance is automatically chosen for different read lengths. [0.04]
+n=8
+#Maximum number of gap opens [1] 
+o=2
+#Maximum number of gap extensions, -1 for k-difference mode (disallowing long gaps) [-1] 
+e=3
+#Take the first INT subsequence as seed. If INT is larger than the query sequence, seeding will be disabled. For long reads, this option is typically ranged from 25 to 35 for .-k 2.. [inf] 
+l=35
+#Maximum edit distance in the seed [2]
+k=2
+#number threads 
+t=16
+
+#gatk alignment qc parameters
+#minimum and maximum coverage per position to be considered callable
+mincov=10
+maxcov=100
+
+#your email address to notify you when the alignments are complete and when the script finishes
+email="name@domain.com"
+
+
+
