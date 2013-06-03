@@ -1,0 +1,33 @@
+#example input file for genotype calling (25 April 2013)
+
+#race name
+race=racename
+
+#path to realigned bams
+pathbams=/PATH/TO/BAMS
+
+#sample ids (prefix for input bam files)
+id=( sampleA sampleB )
+#suffix for bam files
+bamsuffix=.markdup.realign.fixed.reorder.bam
+
+#reference that was used for alignments
+reference=/PATH/TO/REF/reference.fasta
+
+#paths to programs
+picard=/PATH/TO/PICARD/DIR/picard-tools-1.53
+gatk=/PATH/TO/GATK/DIR/GenomeAnalysisTK-1.2-4-gd9ea764/GenomeAnalysisTK.jar
+
+#number of threads to use
+threads=10
+
+#variables
+call_conf=30
+emit_conf=10
+mincov=10
+maxcov=100
+het=0.025
+gqual=30.0
+
+#email adress for notification when script completes
+email=name@domain.com
