@@ -1,0 +1,48 @@
+#example input file for bam2blastid.sh (1 June 2013)
+
+#input bams
+pathbams=/PATH/TO/BAMS				#path to realigned bams
+bamsuffix=.markdup.realign.fixed.reorder.bam	#suffix for bam files
+
+#sample ids (prefix for input bam files)
+ids=( sampleA sampleB sampleC )
+
+#initial species id for each sample
+pre_taxa_id=( speciesA speciesB speciesC )
+
+#minimum e-value to report blast hits
+eval=0.001
+
+#blast db
+db_path=/PATH/TO/BLAST/DB		#path to blast db
+db_file=blast.db.fa			#blast db fasta file
+db_type=nucleotide			#type of blast database (protein or nucleotide)
+
+#type of blast search (eg blastn, blastp, blastx, tblastn, tblastx) 
+blast_type=blastn
+
+#genomic region of interest
+contig="contig_name"		#contig in reference with blast piece
+start=100			#start position of blast piece
+end=200				#end position of blast piece
+
+#reference that was used for alignments
+reference=/PATH/TO/REF/reference.fasta
+
+#paths to programs
+picard=/PATH/TO/PICARD/picard-tools-1.53
+gatk=/PATH/TO/GATK/GenomeAnalysisTK-1.2-4-gd9ea764/GenomeAnalysisTK.jar
+
+#number of threads to use
+threads=10
+
+#GATK genootyping variables
+call_conf=30
+emit_conf=10
+mincov=10
+maxcov=251	#GATK defaults to downsample every site to <251, so setting to 251 keeps everything
+het=0.025
+gqual=30.0
+
+#email adress for notification when script completes
+email2=name@domain.com
