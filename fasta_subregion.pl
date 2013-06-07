@@ -15,7 +15,6 @@ use Getopt::Long;
 #read in command line arguments
 my ($infasta, $start1, $stop)=@ARGV;
 
-
 my $usage = "Usage: fasta_subregion.pl <infile.fasta> <start> <stop>
 options:
         <infile.fasta>          an input aligned fasta file
@@ -24,7 +23,6 @@ options:
 ";
 
 die "$usage" unless (@ARGV == 3);
-my ($infile) = @ARGV;
 
 
 #open input file and output file
