@@ -48,7 +48,7 @@ while($line=<IN>)
 		  if ($seq)
 			{
 		  	  #print header to fasta file
-			  print OUT "$header:$start1-$stop\n";
+			  print OUT "$header\n";
 			  #print sequence of interest in lines of $width
 			  my $length=$width; 
 			  for (my $pos=$start; $pos<$stop;$pos+=$width)
@@ -70,7 +70,7 @@ while($line=<IN>)
 
 			  #print final entry
                           #print header to fasta file
-                          print OUT "$header:$start1-$stop\n";
+                          print OUT "$header\n";
                           #print sequence of interest in lines of $width
                           my $end=$width;
                           for (my $pos=$start; $pos<$stop;$pos+=$width)
