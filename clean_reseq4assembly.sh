@@ -128,3 +128,53 @@ for ((a=0; a<${#id[@]}; a++))
 echo DONE!!!
 
 echo | mutt -s "reseq_assembly_clean.sh script from $1 complete" $email
+
+
+
+
+##example input file to clean resequencing reads prior to assembly (9 June 2013)
+#
+##input fastq files (make sure left and right match up in the order)
+##path to paired end files
+#files=/PATH/TO/FASTQ/FILES
+##files
+#file1=( sampleA.read1.gz sampleB.read1.gz )
+#file2=( sampleB.read2.gz sampleB.read2.gz )
+##id
+#id=( sampleA sampleB )
+#
+##general parameter
+#minlen=30       #minimum read length to output in final file
+#
+##trimmomatic parameters
+#adapter=/PATH/TO/ADAPTER/FILE/adapter.fasta
+#score=-phred33  #-phred33 or -phred64
+#headCropLen=0
+#seedMismatches=2
+#palindromeClipThreshold=30
+#simpleClipThreshold=12
+#windowSize=4
+#windowQuality=20
+#leadQuality=10
+#trailQuality=10
+#path_trimmomatic=/PATH/TO/trimmomatic.jar
+#
+##flash parameters
+#minOverlap=15
+#maxOverlap=70 #or calc from readlen, frag len, sd [70 is default for 100bp reads, 180bp frag, 18sd]
+#maxMismatchDensity=0.2
+#
+##Quake/Jellyfish parameters
+#quakeK=19
+#cov_cut=1
+#path_quake=/PATH/TO/QUAKE/DIR/
+#
+##misc system and log files
+#threads=6
+#resourcelog=resource.log
+#Nlog=Ns.txt
+#
+##email for notification
+#email=name@domain.com
+~
+
