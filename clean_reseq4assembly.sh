@@ -12,6 +12,7 @@
 
 #produces output in the current directory: 
 	#clean.log			-- output from stdout and stderr
+	#resource.log			-- log of computation resources used
 	#*stats.txt 			-- stats from error correction
 	#<sample>.hist* 		-- kmer distribution
 	#*.fastqc*			-- FastQC reports
@@ -119,7 +120,7 @@ for ((a=0; a<${#id[@]}; a++))
 		gzip ${id[a]}.pair2.fastq &
 		gzip ${id[a]}.single.fastq &
 
-		rm ${id[a]}.trim.u1.fastq ${id[a]}.trim.u2.fastq ${id[a]}.trim.p1.fastq ${id[a]}.trim.p2.fastq ${id[a]}.notCombined_1.fastq ${id[a]}.notCombined_2.fastq ${id[a]}.extendedFrags.fastq ${id[a]}.notCombined_1.cor_single.fastq ${id[a]}.notCombined_2.cor_single.fastq ${id[a]}.trim.u1.cor.fastq ${id[a]}.trim.u2.cor.fastq ${id[a]}.extendedFrags.cor.fastq ${id[a]}.counts error_model.${id[a]}.* ${id[a]}.jf.output file.list
+		rm ${id[a]}.trim.u1.fastq ${id[a]}.trim.u2.fastq ${id[a]}.trim.p1.fastq ${id[a]}.trim.p2.fastq ${id[a]}.notCombined_1.fastq ${id[a]}.notCombined_2.fastq ${id[a]}.extendedFrags.fastq ${id[a]}.notCombined_1.cor_single.fastq ${id[a]}.notCombined_2.cor_single.fastq ${id[a]}.trim.u1.cor.fastq ${id[a]}.trim.u2.cor.fastq ${id[a]}.extendedFrags.cor.fastq ${id[a]}.counts error_model.${id[a]}.* ${id[a]}.jf.output file.list Stats
 
 		echo -e "\ndone cleaning sample ${id[a]}\n\n\n" 
  		
