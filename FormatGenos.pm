@@ -28,6 +28,99 @@ my(%iupac)=(
 'TG' => 'K'
 );
 
+#make reverse hash for IUPAC codes
+my(%iupac_rev)=(
+'A' => 'AA',
+'C' => 'CC',
+'G' => 'GG',
+'T' => 'TT',
+'M' => 'AC',
+'R' => 'AG',
+'W' => 'AT',
+'S' => 'CG',
+'Y' => 'CT',
+'K' => 'GT',
+'N' => 'NN'
+);
+
+
+############################################################################################################
+#fasta2hash
+#parses fasta into a hash
+#input is a multi-sequence fasta file
+#returns a pointer to a hash with key=identifier, value=sequence; and the contig name (based on the input file name) and size
+sub fasta2hash
+	{
+	  my($infasta)=@_;
+	  my %seqs=();		#hash of key=identifier, value=sequence
+	  
+	  #open and read in input fasta
+	  open(INFASTA, $infasta)||die "can't open input fasta file. $!\n";
+
+	  my $id;
+	  my $temp_seq;
+ 	  my $contig=(split /\./, $infasta)[0];
+
+	  #process each fasta entry
+	  while (my $line=<INFASTA>)
+	        {
+ 		  chomp $line;
+        	  #if sequence identifier
+        	  if ($line=~/^>./)
+                	{
+	                  #add previous sequence to hash, if not first line of fasta file
+        	          if ($temp_seq){$seqs{$id}=$temp_seq;}
+
+			  #clear sequence
+			  $temp_seq="";
+
+                	  #get sequence identifier (ignoring anything after a space)
+                	  my @temp=split(" ",$line);
+                	  $id=substr($temp[0],1);
+             		}
+		  #if not sequence identifier
+		  else {$temp_seq .= $line;}
+       		 }
+
+	  #process final sequencd
+	  $seqs{$id}=$temp_seq;
+	  my $size=length($temp_seq);	 
+ 
+	  close INFASTA;
+	  return (\%seqs,$contig,$size);
+	}
+
+
+############################################################################################################
+#seq2geno
+#parses a sequence into a genotype object
+#return a pointer to the sample's genotype object
+sub seq2geno
+	{
+	  my ($seqid, $seq)=@_;
+	  my $indiv;
+
+	  #create object 
+	  $indiv=Bio::PopGen::Individual->new(-unique_id => $seqid,
+                                              -genotypes => []);	
+
+	  #add genotype information to object
+	  my @genos=split("",$seq);
+	  #loop over positions and add genotype to object
+	  for (my $i=1; $i<=@genos; $i++)
+		{
+		  #if genotype is not N
+		  if ($genos[$i-1] ne "N")
+			{
+			  my @alleles=split("",$iupac_rev{$genos[$i-1]});
+			  $indiv->add_Genotype(Bio::PopGen::Genotype->new(-alleles => [$alleles[0], $alleles[1]],
+									      -marker_name => "$i"));  
+			}
+		}
+
+	  return \$indiv;  
+	}
+
 ############################################################################################################
 #vcf2geno
 #parses vcf data into individual genotype objects
