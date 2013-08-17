@@ -1,3 +1,7 @@
+#perl modules for formating genetic data
+#Megan Supple
+#2011
+
 package FormatGenos;
 
 use strict;
