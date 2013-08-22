@@ -63,7 +63,11 @@ sub fasta2hash
 
 	  my $id;
 	  my $temp_seq;
- 	  my $contig=(split /\./, $infasta)[0];
+
+	  #get contig name by removing path and the file extension
+	  my @tempcontig=split("/",$infasta);
+	  my $tempcontig2=pop(@tempcontig);
+ 	  my $contig=(split /\./, $tempcontig2)[0];
 
 	  #process each fasta entry
 	  while (my $line=<INFASTA>)
