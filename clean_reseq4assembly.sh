@@ -177,5 +177,3 @@ echo | mutt -s "reseq_assembly_clean.sh script from $1 complete" $email
 #
 ##email for notification
 #email=name@domain.com
-~
-
