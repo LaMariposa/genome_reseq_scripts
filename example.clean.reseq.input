@@ -38,7 +38,6 @@ path_quake=/PATH/TO/QUAKE/DIR/
 #misc system and log files
 threads=6
 resourcelog=resource.log
-Nlog=Ns.txt
 
 #email for notification
 email=name@domain.com
