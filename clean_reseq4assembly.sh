@@ -156,7 +156,6 @@ echo | mutt -s "reseq_assembly_clean.sh script from $1 complete" $email
 ##misc system and log files
 #threads=6
 #resourcelog=resource.log
-#Nlog=Ns.txt
 #
 ##email for notification
 #email=name@domain.com
