@@ -29,7 +29,6 @@ exec &>clean.log
 
 
 echo "cleaning  data" > $resourcelog
-echo "The number of Ns remaining after cleaning" > $Nlog
 
 #loop over each sample
 for ((a=0; a<${#id[@]}; a++))
@@ -99,22 +98,6 @@ for ((a=0; a<${#id[@]}; a++))
 		fastqc -t $threads ${id[a]}.single.fastq
 		
 		
-		echo "The number of reads containing Ns in file ${id[a]}.pair1.fastq is" >> $Nlog
-		grep -B1 'N' ${id[a]}.pair1.fastq | grep '^@' | wc -l >> $Nlog
-		echo "and this many reads have more than 1 N:" >> $Nlog
-		grep -B1 'N' ${id[a]}.pair1.fastq | grep -A1 '^@' | awk -FN '{if (NF>2) print NF-1}' | wc -l >> $Nlog
-		
-		echo "The number of reads containing Ns in file ${id[a]}.pair2.fastq is" >> $Nlog
-		grep -B1 'N' ${id[a]}.pair2.fastq | grep '^@' | wc -l >> $Nlog
-		echo "and this many reads have more than 1 N:" >> $Nlog
-		grep -B1 'N' ${id[a]}.pair2.fastq | grep -A1 '^@' | awk -FN '{if (NF>2) print NF-1}' | wc -l >> $Nlog
-		
-		echo "The number of reads containing Ns in file ${id[a]}.single.fastq is" >> $Nlog
-		grep -B1 'N' ${id[a]}.single.fastq | grep '^@' | wc -l >> $Nlog
-		echo "and this many reads have more than 1 N:" >> $Nlog
-		grep -B1 'N' ${id[a]}.single.fastq | grep -A1 '^@' | awk -FN '{if (NF>2) print NF-1}' | wc -l >> $Nlog
-
-
 		#gzip final files and remove intermediates
 		gzip ${id[a]}.pair1.fastq &
 		gzip ${id[a]}.pair2.fastq &
