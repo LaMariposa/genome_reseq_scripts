@@ -17,8 +17,11 @@ ref=/storage/data_1/megan/references/erato/current_erato_ref/hera_ref_genomic_ja
 threads=6
 
 #path to non-standard programs
+#path to abyss-samtoafg.pl
 path_samtoafg=/storage/data_1/megan/programs
+#path to bin of dev version of amos
 path_amos=/storage/data_1/megan/programs/amos/bin
+#path to my genome_reseq_scripts repository
 path_grs=/storage/data_1/megan/programs/genome_reseq_scripts
 
 #email address for mutt notification
