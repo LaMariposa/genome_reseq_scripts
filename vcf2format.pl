@@ -1,11 +1,13 @@
 #!/usr/bin/perl
 
 #vcf2format.pl by Megan Supple 27 May 2013
+#last updated 8 Nov 2013
 #script to convert vcf file(s) into various formats
 	#option to specifiy a single contig
 	#use IUPAC ambiguity codes
 	#possible output formats
 		#fasta
+		#matric
 
 #usage:    vcf2format.pl [options] <infile>
 	#<infile> is a text file that lists each race and vcf files, each file on a single line
@@ -25,9 +27,11 @@ use Data::Dumper;
 #read in command line arguments
 my $contig;	#contig of interest
 my $fasta;	#generate a fasta file
+my $matrix;	#generates a matrix file
 
 GetOptions (	"contig=s" => \$contig,
-		"fasta" => \$fasta
+		"fasta" => \$fasta,
+		"matrix" => \$matrix
   	);
 		
 my $usage = "Usage: vcf2format.pl [options] <infile>
@@ -35,6 +39,7 @@ options:
 	<infile>		an infile that lists each race and vcf file, each file on a single line 
 	-contig <string>	specify a single contig
 	-fasta			generate fasta file
+	-matrix			generate a matrix file
 ";
 
 die "$usage" unless (@ARGV == 1);
@@ -52,7 +57,7 @@ my @input=<INFILE>;
 close INFILE;
 	
 #check and see if any output format is specified
-($fasta)||die "no output format specified\n";
+($fasta || $matrix)||die "no output format specified\n";
 
 #create a hash of contig names and sizes from the header of the first vcf
 print "gathering contig information\n";
@@ -150,13 +155,21 @@ while (my ($contig, $size)=each(%contigs))
 	  #generate fasta files
 	  if ($fasta)
 		{
-		  print "generating fastas\n";
+		  print "generating fasta filess\n";
 		  #call module to generate the fasta file for the contig
         	  FormatGenos::createFasta($contig,$size,\@pop_names,\@pops);
 		}
+          #generate matrix files
+          if ($matrix)
+                {
+                  print "generating matrix files\n";
+                  #call module to generate the matrix file for the contig
+		  FormatGenos::createMatrix($contig,$size,\@pop_names,\@pops);
+                }
 	  #clear data from the contig
 	  @pops=(); @pop_names=();	
 	}
+
 
 print "DONE!!!\n";
 
