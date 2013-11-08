@@ -226,7 +226,7 @@ sub createFasta
         {
 	  my($contig,$contig_size,$pop_names_p,$pops_p)=@_;
 	
-          #open output files for the contig
+          #open output fasta file for the contig
           open(FASTA,">$contig.samples.fasta");
           
 	  #loop over the populations
@@ -275,4 +275,84 @@ sub createFasta
           close FASTA;
 
 	}
+
+
+#####################################################################################################
+#createMatrix
+#prints out a matrix file for genotypes
+#input contig name, contig size, pointer to the population names, pointer to population information
+#outputs a matrix file
+#returns nothing
+sub createMatrix
+	{
+	  my($contig,$contig_size,$pop_names_p,$pops_p)=@_;
+
+	  #open output matrix file for the contig
+	  open(MATRIX,">$contig.samples.matrix");
+
+	  #get a list of individuals
+	  my @individuals=();
+	  #loop through the populations
+	  for (my $i=0; $i<@$pop_names_p; $i++)
+		{
+		  my @inds=@$pops_p[$i]->get_Individuals();
+		  #add each individual
+		  my $count=@$pops_p[$i]->get_number_individuals;
+		  for (my $j=0; $j<$count; $j++)
+			{
+			  my $ind=$inds[$j]->unique_id;
+			  push (@individuals, $ind);
+			}
+		}
+
+	  #print header 
+	  print MATRIX "scaffold\tposition";
+	  for (my $k=0; $k<@individuals; $k++){print MATRIX "\t$individuals[$k]"}
+	  print MATRIX "\n";
+
+	  #loop over marker positions
+	  for (my $j=1; $j<=$contig_size; $j++) #j tracks position
+		{
+		  print MATRIX "$contig\t$j";
+		  #get genotype for each individual
+		  my $ind_num=0;	#trach which individual to make sure it goes in the correct column
+		  #loop over each population
+		  for (my $k=0; $k<@$pop_names_p; $k++) #k tracks population
+			{
+			  #get a list of individuals in the population
+			  my @inds=@$pops_p[$k]->get_Individuals();
+			  my $count=@$pops_p[$k]->get_number_individuals;
+			  #for each individual
+			  for (my $l=0; $l<$count; $l++) #l tracks individuals within a population
+				{
+				  my $ind_id=$inds[$l]->unique_id;
+				  #get information for the individual (it will be an array with only one entry)
+				  my @ind=@$pops_p[$k]->get_Individuals(-unique_id=>$ind_id);
+				  #get genotypes
+				  my @genotypes=eval{$ind[0]->get_Genotypes(-marker=>"$contig\_$j")};
+				  #if gneotyped--get alleles, if not--print N
+				  if ($genotypes[0])
+					{
+					  #genotyped so get alleles
+                                          my @alleles=$genotypes[0]->get_Alleles();
+                                          #joing the two alleles into a genotype string
+                                          my $geno=join("",@alleles);
+                                          print MATRIX "\t$iupac{$geno}";
+                                        }
+                                        else
+                                        {
+                                          #not genotyped, so print N
+                                          print MATRIX "\tN";
+					}
+                                  #verify that putting genotype in the correct column
+                                  if ($ind_id ne $individuals[$ind_num]){print "uh oh\n"}
+                                  $ind_num++;
+				}
+			}
+		  print MATRIX "\n";
+		}
+	  
+	  close MATRIX;  	 
+	}	 
+
 1;
