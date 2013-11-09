@@ -30,6 +30,10 @@ gatk_genos.sh
 -------------
 Calls and filters multi-sample genotypes from a set of alignment (bam) files using GATK's pipeline for multi sample snp calling. See example.genos.input for example input file. Produces a single vcf with filtered genotype calls for each sample. Requires GATK.
 
+snp_summary.pl
+--------------
+Summarizes genotypes from a matrix genotype file.  Inputs are a matrix of genotypes and a fasta reference.  Outputs the number of SNPs among the samples, the number of genotyped positions per sample, the number of heterozygote SNPs per sample, and the number of SNPs relative to the reference for each sample.
+
 vcf2format.pl
 -------------
-Convert filtered vcf file(s) (from GATK v1.2) into fasta format. Input is a file with a list of vcf files. Outputs are a fasta file for each contig. Requires FormatGenos.pm from this repository.
+Convert filtered vcf file(s) (from GATK v1.2) into fasta format. Input is a file with a list of vcf files. Outputs are a fasta file for each contig. Requires FormatGenos.pm from this repository.  **warning: this script is very specific to older versions of GATK and the filtering in gatk_genos.sh
