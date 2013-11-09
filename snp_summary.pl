@@ -8,10 +8,10 @@
 	#<ref.fasta> is a fasta reference file
 
 #output is
-	#STDOUT 		the number of positions with variation in any samples 
+	#STDOUT 		the number of positions with variation in any of the samples 
 	#genotyped_summary.txt	number of positions genotyped per sample
 	#het_summary.txt	number of heterozygote snps per sample
-	#snp_summary.txt	number of snps relative to the referece per sample
+	#snp_summary.txt	number of snps relative to the reference per sample
 
 use lib $ENV{PERL5LIB}; 
 use strict; 
