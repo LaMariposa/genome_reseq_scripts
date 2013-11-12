@@ -196,3 +196,38 @@ for ((a=0; a<${#fasta[@]}; a++))
 
 echo | mutt -s "assessment script from $1 complete" $email
 echo -e "\nDONE!!!"
+
+
+#example input file to assess assemblies
+
+##path to assemblies
+#path2fastas=/PATH/TO/FASTAS
+#fasta=( assembly1.fasta assembly2.fasta assembly3.fasta )
+#
+##read info
+#read_path=/PATH/TO/CLEANED/READS
+#sample=( sampleID ) #assumes reads are named: <sample>.pair1.fastq.gz, <sample>.pair2.fastq.gz, <sample>.single.fastq.gz
+#
+##misc
+#threads=6
+#platform=Illumina
+#
+##reference sequence
+#ref=/PATH/TO/REFERENCE/reference.fasta
+#
+##cegma protein fasta
+#cegma=/PATH/TO/CEGMA/PROTEINS/CEGMA.proteins.fa
+#
+##assemblathon script info
+#thon_path=/PATH/TO/assemblathon2-analysis
+#export PERL5LIB=/PATH/TO/assemblathon2-analysis
+#
+##cegma info
+#export CEGMA=/usr/local/bin/cegma_v2.4.010312/
+#export WISECONFIGDIR=/usr/local/bin/wise2.2.3-rc7/wisecfg
+#export PATH=$PATH:/usr/local/bin/hmmer-3.0-linux-intel-x86_64/binaries:/usr/local/bin/cegma_v2.4.010312/bin/
+#export PERL5LIB=$PERL5LIB:/usr/local/bin/cegma_v2.4.010312/lib
+#
+##your email address to notify you when the script finishes
+#email=name@domain.edu
+
