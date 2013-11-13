@@ -1,0 +1,27 @@
+#sample id
+id=sampleA
+
+#initial assembly
+assembly=/PATH/TO/ASSEMBLY/sampleA-contigs.fa
+
+#cleaned, fixed sequencing reads
+read1=/PATH/TO/CLEANED/READS/$id.pair1.fixed.fastq.gz
+read2=/PATH/TO/CLEANED/READS/$id.pair2.fixed.fastq.gz
+readsingle=/PATH/TO/CLEANED/READS/PATH/TO/CLEANED/READS/$id.single.fixed.fastq.gz
+
+#reference genome
+ref=/PATH/TO/REFERENCE/DIR/reference.fasta
+
+#number of threads
+threads=6
+
+#path to non-standard programs
+#path to abyss-samtoafg.pl
+path_samtoafg=/PATH/TO/SAMTOAFG/DIR
+#path to bin of dev version of amos
+path_amos=/PATH/TO/AMOS/amos/bin
+#path to my genome_reseq_scripts repository
+path_grs=/PATH/TO/REPOSITORY/genome_reseq_scripts
+
+#email address for mutt notification
+email="name@domain.com"
