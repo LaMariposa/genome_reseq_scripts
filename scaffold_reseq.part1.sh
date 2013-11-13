@@ -66,7 +66,7 @@ exec &>scaffold.log
 	#if .contig file is not empty, remove intermediate files
 	if [ -s $id.contig ]
 	then
-		echo "removing intermediate files"
+		echo "\n\nremoving intermediate files"
 		rm $assembly.rsa $assembly.sa $assembly.rbwt $assembly.bwt 
 		rm $assembly.rpac $assembly.amb $assembly.ann $assembly.pac
 		rm *.sai *.sam *.bam $id.afg 
@@ -131,7 +131,7 @@ exec &>scaffold.log
 	rm temp.xml temp.pairs.xml nucmer.out out.delta mum.xml temp.mum
 
 echo | mutt -s "scaffold_reseq.sh script from $1 complete" $email
-echo DONE!!!
+echo -e "\n\nDONE!!!"
 
 
 ##example input files to scaffold resequencing assemblies
