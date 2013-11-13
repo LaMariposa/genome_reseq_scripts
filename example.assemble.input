@@ -1,0 +1,13 @@
+#path to cleaned fastq files (it will look for 3 files for each id, named <id>.pair1.fastq.gz, <id>.pair2.fastq.gz <id>.single.fastq.gz)
+files=/PATH/TO/FASTQS/
+id=( sampleA sampleB sampleC )
+
+#assembly parameters
+kmer=<int>
+bubble=<int>
+
+#email adress for notification when script completes
+email=name@domain.com
+
+#file to record resource usage
+resourcelog=resource.log
