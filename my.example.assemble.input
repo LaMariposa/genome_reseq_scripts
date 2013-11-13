@@ -1,0 +1,10 @@
+#path to cleaned fastq files (it will look for 3 files for each id, named <id>.pair1.fastq.gz, <id>.pair2.fastq.gz <id>.single.fastq.gz)
+files=/whale-data/ms2003/hydaraPAN/
+id=( STRI0039 STRI0040 STRI0042 )
+
+#assembly parameters
+kmer=41
+bubble=200
+
+email=masupple@ncsu.edu
+resourcelog=resource.log
