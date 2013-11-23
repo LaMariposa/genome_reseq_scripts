@@ -54,9 +54,7 @@ while (my $fasta=<REF>)
          $ref{$contig}=$seq;        
         }
 close REF;
-#while ( my ($key, $value) = each(%ref) ) {
- #       print "$key => $value\n";
-  #  }
+
 
 #open and read in input alignment bits file
 open(INBITS, $bits)||die "can't open mummer alignments file. $!\n";
@@ -81,7 +79,8 @@ my $previous_contig="";
 my $result="";
 my $current_seq="";
 my $previous_seq="";
-
+#flag to ignore contig
+my $ignore=0;
 
 #read in first entry in bits file
 my $line=<INBITS>;
@@ -98,7 +97,11 @@ while ($line)
 	  #set current contig information
 	  @info=split("\t",$line);
           $current_contig=$info[0];
-print "contig=$current_contig\n";
+	  print "examaning contig $previous_contig & $current_contig: ";
+	  #set contig position based on orientation
+          if ($info[17] eq "Plus"){$cont_start=$info[6];$cont_end=$info[7]}
+          	elsif ($info[17] eq "Minus"){$cont_start=$info[7];$cont_end=$info[6]}
+
 
 	  #get correct sequence orientation
 	  if ($info[17] eq "Plus"){$current_seq=$ref{$current_contig}}
@@ -108,24 +111,23 @@ print "contig=$current_contig\n";
                            $current_seq=reverse($ref{$current_contig});
                            $current_seq=~tr/ABCDGHMNRSTUVWXYabcdghmnrstuvwxy/TVGHCDKNYSAABWXRtvghcdknysaabwxr/;
 			}
-#print "seq=$temp_seq\n";
 
 	  #see how it relates to previous entry
 	  #check to see if they are different contigs
 	  if ($current_contig ne $previous_contig)
 		{
 		  #they are different, so process
-
+#this is wrong, need to account for orientation?
 		  #calculate extended position of contig relative to reference
-                  if ($info[17] eq "Plus"){$cont_start=$info[6];$cont_end=$info[7]}
-                        elsif ($info[17] eq "Minus"){$cont_start=$info[7];$cont_end=$info[6]}
                   $start=$info[8]-$cont_start+1;
                   $end=$info[9]+$info[2]-$cont_end;
-
+print "lastend=$last_end\n";
+print "start=$start\n";
 		  #do they overlap
 		  if ($start>$last_end)
 			{	
 		  	  #no overlap with previous, so print out Ns for the gap
+			  print "no overlap\n";
 			  my $numNs=$start-$last_end-1;
 			  $result.='N' x $numNs;
 #$result.="\n";
@@ -139,7 +141,7 @@ print "contig=$current_contig\n";
 		  	  #the current and previous overlap, so test various cases
 			  #pull out the sequence that is exected to overlap
 			  my $overlap=$last_end-$start+1;
-print "overlap=$overlap\n";
+			  print "overlap=$overlap, ";
 			  my $bit_previous_seq=substr $previous_seq, -$overlap;
 			  my $bit_current_seq=substr $current_seq, 0, $overlap;
 #print "prev=$bit_previous_seq\n";
@@ -149,7 +151,7 @@ print "overlap=$overlap\n";
 			  if ($bit_current_seq eq $bit_previous_seq)
 				{
 				  #sequences are identical so remove bit from current and print
-print "identical\n";
+				  print "identical\n";
 
 my $x=substr $current_seq, $overlap;
 #print "x=$x\n";
@@ -182,31 +184,46 @@ print "not identical\n";
 		{
 		  #they are the same
 		  #test to see if order and orientation are consistent
-		  print "same contig???\n";
+		  print "same contig, ";
 		  if ($prev_orient eq $info[17])
 			{
-			  print "same orientation\n";
-print "prevcontstart=$prev_cont_start\n";
-print "prevcontend=$prev_cont_end\n";
-print "start=$cont_start\n";
-print "end=$cont_end\n";
-			  if ($info[17] eq "Plus" && $cont_end > $prev_cont_start || $info[17] eq "Minus" && $cont_end < $prev_cont_start)
+			  if (($info[17] eq "Plus" && $cont_end > $prev_cont_start) || ($info[17] eq "Minus" && $cont_end < $prev_cont_start))
 				{
-				  print "order ok\n";
+				  print "proper order and orientation\n";
+				  #don't do anything but update coordinates (done below)
+				}
+				else 
+				{
+				  print "but different order, check manually\n";
+				  #skip contig so don't update coordinates
+				  $ignore=1;			  
 				}
 			}
-			else {print "same contig, different orientation, check manually\n";}
+			else 
+			{
+			  print "but different orientation, check manually\n";
+                          #skip contig so don't update coordinates
+                          $ignore=1;
+			}
 		}
 
 	  #read in next entry
 	  $line=<INBITS>;
 	  #set previous contig info
-          $prev_cont_start=$cont_start;
-          $prev_cont_end=$cont_end;
-          $prev_orient=$info[17];
-          $previous_contig=$current_contig;
-          $last_end=$end;
-          $previous_seq=$current_seq;
+	  if ($ignore==0)
+		{
+          	  $prev_cont_start=$cont_start;
+          	  $prev_cont_end=$cont_end;
+          	  $prev_orient=$info[17];
+          	  $previous_contig=$current_contig;
+          	  $last_end=$end;
+          	  $previous_seq=$current_seq;
+		}
+		else
+		{
+		  #ignore contig and reset flag
+		  $ignore=0;
+		}
 
 	}
 
