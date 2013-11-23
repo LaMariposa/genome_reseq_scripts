@@ -67,9 +67,13 @@ open(INBITS, $bits)||die "can't open mummer alignments file. $!\n";
 my $start;
 my $end;
 my $last_end;
+#previous orientation
+my $prev_orient="";
 #position on contig
 my $cont_start;
 my $cont_end;
+my $prev_cont_start;
+my $prev_cont_end;
 #to track contig names
 my $current_contig="";
 my $previous_contig="";
@@ -78,23 +82,22 @@ my $result="";
 my $current_seq="";
 my $previous_seq="";
 
+
 #read in first entry in bits file
 my $line=<INBITS>;
 my @info=split("\t",$line);
 #set end so this piece starts as the beginning
 if ($info[17] eq "Plus"){$cont_start=$info[6]}
         elsif ($info[17] eq "Minus"){$cont_start=$info[7]}
-$end=$info[8]-$cont_start;
+$last_end=$info[8]-$cont_start;
 
 
 #process each entry in the bits file
 while ($line)
 	{
+	  #set current contig information
 	  @info=split("\t",$line);
-	  $previous_contig=$current_contig;
           $current_contig=$info[0];
-	  $last_end=$end;
-	  $previous_seq=$current_seq;
 print "contig=$current_contig\n";
 
 	  #get correct sequence orientation
@@ -139,8 +142,8 @@ print "contig=$current_contig\n";
 print "overlap=$overlap\n";
 			  my $bit_previous_seq=substr $previous_seq, -$overlap;
 			  my $bit_current_seq=substr $current_seq, 0, $overlap;
-print "prev=$bit_previous_seq\n";
-print "curr=$bit_current_seq\n";
+#print "prev=$bit_previous_seq\n";
+#print "curr=$bit_current_seq\n";
 			  			  
 			  #check if the sequences are identical
 			  if ($bit_current_seq eq $bit_previous_seq)
@@ -160,7 +163,7 @@ print "not identical\n";
 				  #do the edges overlap
 				  #is there no match--chop off pieces that should overlap and add double the Ns
 				  #chop off the end of the results
-print "result=$result\n";
+#print "result=$result\n";
 				  $result=substr($result, 0, -$overlap);
 				  #add Ns
 #$result.="\n";
@@ -177,13 +180,34 @@ print "result=$result\n";
 		}
 		else 
 		{
-		  #they are the same, for now do nothing but skip
+		  #they are the same
+		  #test to see if order and orientation are consistent
 		  print "same contig???\n";
+		  if ($prev_orient eq $info[17])
+			{
+			  print "same orientation\n";
+print "prevcontstart=$prev_cont_start\n";
+print "prevcontend=$prev_cont_end\n";
+print "start=$cont_start\n";
+print "end=$cont_end\n";
+			  if ($info[17] eq "Plus" && $cont_end > $prev_cont_start || $info[17] eq "Minus" && $cont_end < $prev_cont_start)
+				{
+				  print "order ok\n";
+				}
+			}
+			else {print "same contig, different orientation, check manually\n";}
 		}
-
 
 	  #read in next entry
 	  $line=<INBITS>;
+	  #set previous contig info
+          $prev_cont_start=$cont_start;
+          $prev_cont_end=$cont_end;
+          $prev_orient=$info[17];
+          $previous_contig=$current_contig;
+          $last_end=$end;
+          $previous_seq=$current_seq;
+
 	}
 
 
