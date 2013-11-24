@@ -86,9 +86,8 @@ my $ignore=0;
 my $line=<INBITS>;
 my @info=split("\t",$line);
 #set end so this piece starts as the beginning
-if ($info[17] eq "Plus"){$cont_start=$info[6]}
-        elsif ($info[17] eq "Minus"){$cont_start=$info[7]}
-$last_end=$info[8]-$cont_start;
+if ($info[17] eq "Plus"){$cont_start=$info[6]; $last_end=$info[8]-$cont_start;}
+        elsif ($info[17] eq "Minus"){$cont_start=$info[7]; $last_end=$info[8]-$info[2]+$info[6]-1}
 
 
 #process each entry in the bits file
@@ -119,8 +118,10 @@ while ($line)
 		  #they are different, so process
 #this is wrong, need to account for orientation?
 		  #calculate extended position of contig relative to reference
-                  $start=$info[8]-$cont_start+1;
-                  $end=$info[9]+$info[2]-$cont_end;
+		  if ($info[17] eq "Plus"){$start=$info[8]-$cont_start+1}
+			elsif ($info[17] eq "Minus"){$start=$info[8]-$info[2]+$info[6]}
+              	  if ($info[17] eq "Plus"){$end=$info[9]+$info[2]-$cont_end;}
+			elsif ($info[17] eq "Minus"){$end=$info[9]+$cont_start-1;}	 
 print "lastend=$last_end\n";
 print "start=$start\n";
 		  #do they overlap
@@ -190,7 +191,11 @@ print "not identical\n";
 			  if (($info[17] eq "Plus" && $cont_end > $prev_cont_start) || ($info[17] eq "Minus" && $cont_end < $prev_cont_start))
 				{
 				  print "proper order and orientation\n";
-				  #don't do anything but update coordinates (done below)
+				  #don't do anything but update coordinates
+                  		  if ($info[17] eq "Plus"){$start=$info[8]-$cont_start+1}
+                  		  	elsif ($info[17] eq "Minus"){$start=$info[8]-$info[2]+$info[6]}
+             		          if ($info[17] eq "Plus"){$end=$info[9]+$info[2]-$cont_end;}
+                	       		elsif ($info[17] eq "Minus"){$end=$info[9]+$cont_start-1;}
 				}
 				else 
 				{
