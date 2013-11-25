@@ -86,8 +86,8 @@ my $ignore=0;
 my $line=<INBITS>;
 my @info=split("\t",$line);
 #set end so this piece starts as the beginning
-if ($info[17] eq "Plus"){$cont_start=$info[6]; $last_end=$info[8]-$cont_start;}
-        elsif ($info[17] eq "Minus"){$cont_start=$info[7]; $last_end=$info[8]-$info[2]+$info[6]-1}
+if ($info[17] eq "Plus"){$last_end=$info[8]-$info[6];}
+        elsif ($info[17] eq "Minus"){$last_end=$info[8]-$info[2]+$info[6]-1}
 
 
 #process each entry in the bits file
@@ -96,7 +96,7 @@ while ($line)
 	  #set current contig information
 	  @info=split("\t",$line);
           $current_contig=$info[0];
-	  print "examaning contig $previous_contig & $current_contig: ";
+	  print "examining contig $previous_contig & $current_contig: ";
 	  #set contig position based on orientation
           if ($info[17] eq "Plus"){$cont_start=$info[6];$cont_end=$info[7]}
           	elsif ($info[17] eq "Minus"){$cont_start=$info[7];$cont_end=$info[6]}
@@ -116,25 +116,20 @@ while ($line)
 	  if ($current_contig ne $previous_contig)
 		{
 		  #they are different, so process
-#this is wrong, need to account for orientation?
 		  #calculate extended position of contig relative to reference
-		  if ($info[17] eq "Plus"){$start=$info[8]-$cont_start+1}
-			elsif ($info[17] eq "Minus"){$start=$info[8]-$info[2]+$info[6]}
-              	  if ($info[17] eq "Plus"){$end=$info[9]+$info[2]-$cont_end;}
-			elsif ($info[17] eq "Minus"){$end=$info[9]+$cont_start-1;}	 
-print "lastend=$last_end\n";
-print "start=$start\n";
+		  if ($info[17] eq "Plus"){$start=$info[8]-$info[6]+1}
+			elsif ($info[17] eq "Minus"){$start=$info[8]-$info[2]+$info[6];}
+              	  if ($info[17] eq "Plus"){$end=$info[9]+$info[2]-$info[7];}
+			elsif ($info[17] eq "Minus"){$end=$info[9]+$info[7]-1;}	 
 		  #do they overlap
 		  if ($start>$last_end)
-			{	
+			{
 		  	  #no overlap with previous, so print out Ns for the gap
 			  print "no overlap\n";
 			  my $numNs=$start-$last_end-1;
 			  $result.='N' x $numNs;
-#$result.="\n";
 			  #now print out contig
 			  $result.=$current_seq;
-#$result.="\n"; 
 			}
 
 			else
@@ -145,7 +140,7 @@ print "start=$start\n";
 			  print "overlap=$overlap, ";
 			  my $bit_previous_seq=substr $previous_seq, -$overlap;
 			  my $bit_current_seq=substr $current_seq, 0, $overlap;
-#print "prev=$bit_previous_seq\n";
+#print "\nprev=$bit_previous_seq\n";
 #print "curr=$bit_current_seq\n";
 			  			  
 			  #check if the sequences are identical
@@ -153,31 +148,52 @@ print "start=$start\n";
 				{
 				  #sequences are identical so remove bit from current and print
 				  print "identical\n";
-
-my $x=substr $current_seq, $overlap;
-#print "x=$x\n";
 				  $result.=substr $current_seq, $overlap;
-#$result.="\n";
 				}
 				else
 				{
-print "not identical\n";
-				  #are the sequence identical/global match with high similarity
-				  #do the edges overlap
-				  #is there no match--chop off pieces that should overlap and add double the Ns
-				  #chop off the end of the results
-#print "result=$result\n";
-				  $result=substr($result, 0, -$overlap);
-				  #add Ns
-#$result.="\n";
-				  $result.='N' x $overlap;
-				  $result.='N' x $overlap;
-#print "contig is=$current_contig\n";
-#print "overlap=$overlap\n";
-#$result.="\n";
-				  #chop off start of current contig and add
-				  $result.=substr $current_seq, $overlap;
-#$result.="\n";
+				  #is there high similarity as pieces are slid apart
+				  my $diffs=($bit_current_seq ^ $bit_previous_seq) =~tr/\0//;
+				  my  $similarity=$diffs/length($bit_current_seq);
+				  while (length($bit_current_seq) > 10 && $similarity < 0.9)
+					{
+#print "\npreprev=$bit_previous_seq\n";
+#print "precurr=$bit_current_seq\n";
+#print "tempoverlpa=";
+#print length($bit_current_seq);
+#print "\nsimilarity=$similarity\n";
+
+					  #aren't similar enough, so slide one
+					  $bit_previous_seq=substr $bit_previous_seq, 1;
+					  $bit_current_seq=substr $bit_current_seq, 0, -1;
+					  #calculate similarity
+					  $diffs=($bit_current_seq ^ $bit_previous_seq) =~tr/\0//; 
+					  $similarity=$diffs/length($bit_current_seq);
+					}
+
+				  #if a good match was found, merge the contigs
+				  if (length($bit_current_seq) > 10)
+					{
+					  #remove matching piece from current and print
+					  my $size=length($bit_current_seq);
+					  my $percent=$similarity*100;
+					  print "a match of length $size and similarity $percent%\n";
+					  $result.=substr $current_seq, $size;
+					}
+
+					else
+					{
+					  #there was no match found--chop off pieces that should overlap and add double the Ns
+					  print "no similarity\n";	
+
+				  	  #chop off the end of the results
+				  	  $result=substr($result, 0, -$overlap);
+				  	  #add Ns
+				  	  $result.='N' x $overlap;
+				  	  $result.='N' x $overlap;
+				  	  #chop off start of current contig and add
+				  	  $result.=substr $current_seq, $overlap;
+					}
 				}
 		  	}
 		}
@@ -192,10 +208,10 @@ print "not identical\n";
 				{
 				  print "proper order and orientation\n";
 				  #don't do anything but update coordinates
-                  		  if ($info[17] eq "Plus"){$start=$info[8]-$cont_start+1}
+                  		  if ($info[17] eq "Plus"){$start=$info[8]-$info[6]+1}
                   		  	elsif ($info[17] eq "Minus"){$start=$info[8]-$info[2]+$info[6]}
-             		          if ($info[17] eq "Plus"){$end=$info[9]+$info[2]-$cont_end;}
-                	       		elsif ($info[17] eq "Minus"){$end=$info[9]+$cont_start-1;}
+             		          if ($info[17] eq "Plus"){$end=$info[9]+$info[2]-$info[7];}
+                	       		elsif ($info[17] eq "Minus"){$end=$info[9]+$info[7]-1;}
 				}
 				else 
 				{
