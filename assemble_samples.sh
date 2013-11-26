@@ -9,7 +9,7 @@
 #usage assemble_samples.sh <assemble.input>
 	#<assemble.input is a text file file with entries as in example input file (see example.assemble.input or example at the end of this script)
 #requires ABySS
-#produces ABySS output for each sample, a lot file, and a file with resource usage
+#produces ABySS output for each sample, a log file, and a file with resource usage
 
 #read in input file
 source $1
