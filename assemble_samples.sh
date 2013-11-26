@@ -25,8 +25,8 @@ for ((a=0; a<${#id[@]}; a++))
 
                 #assemble
                 /usr/bin/time -v -o $resourcelog -a abyss-pe name=$name k=$kmer b=$bubble \
-                                                              in="$files/${id[a]}.pair1.fastq.gz $files/${id[a]}.pair2.fastq.gz" \
-                                                              se=$files/${id[a]}.single.fastq.gz
+                                                              in="$files/${id[a]}.pair1.fixed.fastq.gz $files/${id[a]}.pair2.fixed.fastq.gz" \
+                                                              se=$files/${id[a]}.single.fixed.fastq.gz
 	done
 
 echo | mutt -s "assemblies complete" $email
