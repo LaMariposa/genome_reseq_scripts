@@ -18,7 +18,7 @@
 	#*.fastqc*			-- FastQC reports
 	#<sample>.pair1.fastq.gz	--**cleaned reads, pair 1**
 	#<sample>.pair1.fastq.gz	--**cleaned reads, pair 2**
-	#GS012.single.fastq.gz		--**cleaned reads, unpaired**
+	#<sample>.single.fastq.gz	--**cleaned reads, unpaired**
 
 
 
