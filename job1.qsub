@@ -1,0 +1,6 @@
+#!/usr/bin
+#$ -S /bin/sh
+#$ -N supplemJob1a
+#$ -q mTz.q
+
+scaffold_reseq.v3.sh
