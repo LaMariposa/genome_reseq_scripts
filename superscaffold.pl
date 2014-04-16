@@ -29,7 +29,7 @@ my ($contigs, $bits) = @ARGV;
 
 
 #make a hash of contigs names and sequences
-open(REF, $contigs)||die "can't open input contigs file. $!\n";
+open(REF, $contigs)||die "can't open input fasta file. $!\n";
 my %ref;
 my $contig;
 my $seq="";
@@ -138,96 +138,116 @@ while ($line)
 		  	  #the current and previous overlap, so test various cases
 			  #pull out the sequence that is exected to overlap
 			  my $overlap=$last_end-$start+1;
-			  print "overlap=$overlap, ";
-			  my $bit_previous_seq=substr $previous_seq, -$overlap;
-			  my $bit_current_seq=substr $current_seq, 0, $overlap;
-			  			  
-			  #check if the sequences are identical
-			  if ($bit_current_seq eq $bit_previous_seq)
+			  print "estimated overlap=$overlap, ";
+
+                          #check if the overlap is greater than the contig sizes
+                          #if so, this probably a problematic repeat area
+                          #throw out the new contig and flag it for manual inspection
+			  if (length($current_seq) < $overlap || length($previous_seq) < $overlap)
 				{
-				  #sequences are identical so remove bit from current and print
-				  print "identical\n";
-				  $result.=substr $current_seq, $overlap;
+				  print "contig smaller than overlap, check region manually\n";
 				}
-				else
+			  elsif ($overlap <= 10)
 				{
-				  #is there high similarity as pieces are slid apart
-				  my $diffs=($bit_current_seq ^ $bit_previous_seq) =~tr/\0//;
-				  my $similarity=$diffs/length($bit_current_seq);
-				  while (length($bit_current_seq) > 10 && $similarity < 0.9)
+				  #not enough overlap to calculate, so put 50 Ns
+                          	  print "not enough overlap to compare\n";
+                          	  my $numNs=50;
+                          	  $result.='N' x $numNs;
+                          	  #now print out contig
+                       		  $result.=$current_seq;
+				}
+				   
+			  else{	
+				  my $bit_previous_seq=substr $previous_seq, -$overlap;
+				  my $bit_current_seq=substr $current_seq, 0, $overlap;
+			  			  
+				  #check if the sequences are identical
+				  if ($bit_current_seq eq $bit_previous_seq)
 					{
-					  #aren't similar enough, so slide one
-					  $bit_previous_seq=substr $bit_previous_seq, 1;
-					  $bit_current_seq=substr $bit_current_seq, 0, -1;
-					  #calculate similarity
-					  $diffs=($bit_current_seq ^ $bit_previous_seq) =~tr/\0//; 
-					  $similarity=$diffs/length($bit_current_seq);
+					  #sequences are identical so remove bit from current and print
+					  print "identical\n";
+					  $result.=substr $current_seq, $overlap;
 					}
-
-				  #if a good match was found, merge the contigs
-				  if (length($bit_current_seq) > 10)
-					{
-					  #remove matching piece from current and print
-					  my $size=length($bit_current_seq);
-					  my $percent=$similarity*100;
-					  print "a match of length $size and similarity $percent%\n";
-					  $result.=substr $current_seq, $size;
-					}
-
 					else
 					{
-					  #no good match found sliding apart, so slide together
-					  #reset values
-					  my $bit_prev=substr $previous_seq, -$overlap;
-                          		  my $bit_curr=substr $current_seq, 0, $overlap;
-
-					  #find size of smallest contig
-					  my @lengths=(length($previous_seq), length($current_seq));
-					  my $min_len=min(@lengths);
-					  
-					  #find similarity
-					  my $diffs=($bit_curr ^ $bit_prev) =~tr/\0//;
-                                  	  my $similarity=$diffs/length($bit_curr);
-					  my $slide=1; #tracks how many positions slid
-
-					  #while no match
-					  while(length($bit_curr) < $min_len && $similarity < 0.9)
+					  #is there high similarity as pieces are slid apart
+					  my $diffs=($bit_current_seq ^ $bit_previous_seq) =~tr/\0//;
+					  my $similarity=$diffs/length($bit_current_seq);
+					  while (length($bit_current_seq) > 10 && $similarity < 0.9)
 						{
 						  #aren't similar enough, so slide one
-						  $bit_prev=substr $previous_seq,-$overlap-$slide;
-						  $bit_curr=substr $current_seq,0, $overlap+$slide;
-						  
+						  $bit_previous_seq=substr $bit_previous_seq, 1;
+						  $bit_current_seq=substr $bit_current_seq, 0, -1;
 						  #calculate similarity
-						  $diffs=($bit_curr ^ $bit_prev) =~tr/\0//;
-                                          	  $similarity=$diffs/length($bit_curr);
-					
-						  #update slide
-						  $slide++;
+						  $diffs=($bit_current_seq ^ $bit_previous_seq) =~tr/\0//; 
+						  $similarity=$diffs/length($bit_current_seq);
 						}
-					  #if match found, merge by removing matching piece from current 
-					  if (length($bit_curr) < $min_len)
+	
+					  #if a good match was found, merge the contigs
+					  if (length($bit_current_seq) > 10)
 						{
-                                         	  my $size=length($bit_curr);
-                                          	  my $percent=$similarity*100;
+						  #remove matching piece from current and print
+						  my $size=length($bit_current_seq);
+						  my $percent=$similarity*100;
 						  print "a match of length $size and similarity $percent%\n";
 						  $result.=substr $current_seq, $size;
 						}
+	
 						else
 						{
-					  	  #there was no match found--chop off pieces that should overlap and add double the Ns
-					  	  print "no similarity\n";	
+						  #no good match found sliding apart, so slide together
+						  #reset values
+						  my $bit_prev=substr $previous_seq, -$overlap;
+	                          		  my $bit_curr=substr $current_seq, 0, $overlap;
+	
+						  #find size of smallest contig
+						  my @lengths=(length($previous_seq), length($current_seq));
+						  my $min_len=min(@lengths);
+					  
+						  #find similarity
+						  my $diffs=($bit_curr ^ $bit_prev) =~tr/\0//;
+	                                  	  my $similarity=$diffs/length($bit_curr);
+						  my $slide=1; #tracks how many positions slid
+	
+						  #while no match
+						  while(length($bit_curr) < $min_len && $similarity < 0.9)
+							{
+							  #aren't similar enough, so slide one
+							  $bit_prev=substr $previous_seq,-$overlap-$slide;
+							  $bit_curr=substr $current_seq,0, $overlap+$slide;
+							  
+							  #calculate similarity
+							  $diffs=($bit_curr ^ $bit_prev) =~tr/\0//;
+                	                          	  $similarity=$diffs/length($bit_curr);
+						
+							  #update slide
+							  $slide++;
+							}
+						  #if match found, merge by removing matching piece from current 
+						  if (length($bit_curr) < $min_len)
+							{
+                        	                 	  my $size=length($bit_curr);
+                                	          	  my $percent=$similarity*100;
+							  print "a match of length $size and similarity $percent%\n";
+							  $result.=substr $current_seq, $size;
+							}
+							else
+							{
+						  	  #there was no match found--chop off pieces that should overlap and add double the Ns
+						  	  print "no similarity\n";	
 
-				  	  	  #chop off the end of the results
-				  	  	  $result=substr($result, 0, -$overlap);
-				  	  	  #add Ns
-				  	  	  $result.='N' x $overlap;
-				  	  	  $result.='N' x $overlap;
-				  	  	  #chop off start of current contig and add
-				  	  	  $result.=substr $current_seq, $overlap;
+				  		  	  #chop off the end of the results
+				  	  		  $result=substr($result, 0, -$overlap);
+					  	  	  #add Ns
+					  	  	  $result.='N' x $overlap;
+					  	  	  $result.='N' x $overlap;
+					  	  	  #chop off start of current contig and add
+					  	  	  $result.=substr $current_seq, $overlap;
+							}
 						}
 					}
-				}
-		  	}
+			  	}
+			}
 		}
 		else 
 		{
