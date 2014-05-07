@@ -24,10 +24,12 @@ options:
 
 die "$usage" unless (@ARGV == 3);
 
+#determine base file name
+my $filename=(split /\//, $infasta)[-1];
 
 #open input file and output file
 open(IN, $infasta)||die "can't open input fasta file. $!\n";
-open(OUT, ">$infasta$start1-$stop.fasta");
+open(OUT, ">$filename$start1-$stop.fasta");
 
 #need to shift the frame
 my $start=$start1-1;
